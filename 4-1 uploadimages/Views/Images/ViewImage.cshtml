@@ -1,0 +1,27 @@
+﻿@using _4_1_uploadimages.Models
+@using UploadImages.data
+@model Image
+<h2>ViewImage</h2>
+@if(Model.FileName == null)
+{
+<div class="well">
+    <div class="col-lg-offset-4">
+        @if (Model.Password == "error")
+        {
+            <h3 style="color: red">Please try again</h3>
+        }
+        <h5>Please enter password</h5>
+        <form method="post" action="/images/viewimage?id=@Model.Id">
+            <input type="text" placeholder="password" name="password" />
+            <button class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+}
+else
+{
+    <img style="width: 300px; height: 250px" src="@Model.FileName" />
+    <Label class="col-lg-4">Viewed @Model.TimesViewed times</Label>
+}
+
+

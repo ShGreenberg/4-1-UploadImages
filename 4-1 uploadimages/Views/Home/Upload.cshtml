@@ -1,0 +1,11 @@
+﻿@using _4_1_uploadimages.Models
+@model UploadedViewModel
+
+<div class="well">
+    <h2>Thank you for uploading your image, here's the link to share with your friends</h2>
+    <br />
+    <h3><a href="http://localhost:51442/Images/ViewImage?id=@Model.Id">http://localhost:51442/Images/ViewImage?id=@Model.Id</a></h3>
+    <br />
+    <h4>Make sure to give the password of '@Model.Password'</h4>
+</div>
+
