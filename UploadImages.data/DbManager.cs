@@ -14,14 +14,67 @@ namespace UploadImages.data
             _connString = connString;
         }
 
+        public void AddUser(User user, string password)
+        {
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
+            SqlConnection conn = new SqlConnection(_connString);
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "INSERT INTO Users (Name, Email, PasswordHash) " +
+                                  "VALUES (@name, @email, @hash) SELECT SCOPE_IDENTITY()";
+            cmd.Parameters.AddWithValue("@name", user.Name);
+            cmd.Parameters.AddWithValue("@email", user.Email);
+            cmd.Parameters.AddWithValue("@hash", user.PasswordHash);
+            conn.Open();
+            user.Id = (int)(decimal)cmd.ExecuteScalar();
+            conn.Close();
+            conn.Dispose();
+            
+        }
+
+        public User Login(string email, string password)
+        {
+            User user = GetByEmail(email);
+            if(user == null)
+            {
+                return null;
+            }
+            if(!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            {
+                return null;
+            }
+            return user;
+        }
+
+        public User GetByEmail(string email)
+        {
+            SqlConnection conn = new SqlConnection(_connString);
+            SqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT TOP 1 * FROM Users WHERE email = @email";
+            cmd.Parameters.AddWithValue("@email", email);
+            conn.Open();
+            SqlDataReader reader = cmd.ExecuteReader();
+            if (!reader.Read())
+            {
+                return null;
+            }
+            return new User
+            {
+                Email = (string)reader["Email"],
+                PasswordHash = (string)reader["PasswordHash"],
+                Id = (int)reader["Id"],
+                Name = (string)reader["Name"]
+            };
+        }
+
         public int AddImage(Image image)
    
      {
             SqlConnection conn = new SqlConnection(_connString);
             SqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = "INSERT INTO Images VALUES (@filename, @password, 0) SELECT SCOPE_IDENTITY()";
+            cmd.CommandText = "INSERT INTO Images VALUES (@filename, @password, 0, @userId) SELECT SCOPE_IDENTITY()";
             cmd.Parameters.AddWithValue("@filename", image.FileName);
             cmd.Parameters.AddWithValue("@password", image.Password);
+            cmd.Parameters.AddWithValue("@userId", image.UserId);
             conn.Open();
             int id = (int)(decimal)cmd.ExecuteScalar();
             conn.Close();
@@ -43,7 +96,8 @@ namespace UploadImages.data
                 FileName = (string)reader["fileName"],
                 Id = (int)reader["Id"],
                 Password = (string)reader["Password"],
-                TimesViewed = (int)reader["TimesViewed"]
+                TimesViewed = (int)reader["TimesViewed"],
+                UserId = (int)reader["UserId"]
             };
             conn.Close();
             conn.Dispose();
@@ -60,6 +114,32 @@ namespace UploadImages.data
             cmd.ExecuteNonQuery();
             conn.Close();
             conn.Dispose();
+        }
+
+        public IEnumerable<Image> GetImgaesForUser(int id)
+        {
+            SqlConnection conn = new SqlConnection(_connString);
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT * FROM Images WHERE userId = @id";
+            cmd.Parameters.AddWithValue("@id", id);
+            conn.Open();
+            var reader = cmd.ExecuteReader();
+            List<Image> images = new List<Image>();
+            while (reader.Read())
+            {
+                images.Add(new Image
+                {
+                    FileName = (string)reader["fileName"],
+                    Id = (int)reader["Id"],
+                    Password = (string)reader["Password"],
+                    TimesViewed = (int)reader["TimesViewed"],
+                    UserId = (int)reader["UserId"]
+                });
+            }
+            conn.Close();
+            conn.Dispose();
+            return images;
+
         }
     }
 }

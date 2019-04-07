@@ -1,4 +1,6 @@
-﻿<div class="well">
+﻿@model UploadImages.data.User
+<div class="well">
+    <h4>Hi @Model.Name, here you may upload an image to share with your friends</h4>
     <form method="post" action="/home/upload" enctype="multipart/form-data">
         <input type="file" name="image" />
         <input type="text" placeholder="password" name="password" />

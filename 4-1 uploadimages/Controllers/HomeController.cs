@@ -10,9 +10,13 @@ namespace _4_1_uploadimages.Controllers
 {
     public class HomeController : Controller
     {
+        [Authorize]
         public ActionResult Index()
         {
-            return View();
+            DbManager mgr = new DbManager(Properties.Settings.Default.ConStr);
+            User user = mgr.GetByEmail(User.Identity.Name);
+            TempData["userId"] = user;
+            return View(user);
         }
 
         [HttpPost]
@@ -25,14 +29,14 @@ namespace _4_1_uploadimages.Controllers
             int id = mgr.AddImage(new Image
             {
                 FileName = fileName,
-                Password = password
+                Password = password,
+                UserId = int.Parse(TempData["userId"].ToString())
             });
             UploadedViewModel vm = new UploadedViewModel
             {
                 Id = id,
                 Password = password
             };
-            var counts = new Dictionary<int, int>();
             return View(vm);
         }
 

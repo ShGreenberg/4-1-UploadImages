@@ -1,0 +1,17 @@
+﻿@using UploadImages.data
+@using _4_1_uploadimages.Models
+@model MyAccountViewModel
+
+<div class="container">
+    <h2 class="col-lg-offset-5">@Model.User.Name's Account</h2>
+    <br />
+    @foreach (Image i in Model.Images)
+    {
+        <div class="row col-md-3 ">
+            <img src="~/UploadedImages/@i.FileName" style="width: 150px; height: 110px" />
+            <Label class="col-lg-4">Viewed @i.TimesViewed times</Label>
+        </div>
+    }
+
+</div>
+     

@@ -13,25 +13,34 @@ namespace _4_1_uploadimages.Controllers
         public ActionResult ViewImage(int id, string password)
         {
             var fromSession = (List<int>)Session["CorrectPasswords"];
-            if (password == null && (Session["CorrectPasswords"] == null || fromSession.FirstOrDefault(c => c == id) == 0))
+            DbManager mgr = new DbManager(Properties.Settings.Default.ConStr);
+            Image image = mgr.GetImage(id);
+            if(image == null)
+            {
+                return Redirect("/");
+            }
+            if (password == image.Password || (fromSession != null && fromSession.Contains(id)) 
+                    || image.UserId == mgr.GetByEmail(User.Identity.Name).Id)
+            {
+                mgr.UpdateImage(image.Id);
+                image.TimesViewed++;
+                List<int> correct = new List<int>();
+                if (Session["CorrectPasswords"] != null)
+                {
+                    correct = (List<int>)Session["CorrectPasswords"];
+                }
+                correct.Add(id);
+                Session["CorrectPasswords"] = correct;
+                return View(image);
+            }
+            if (password == null)
             {
                 return View(new Image { Id = id });
             }
-            DbManager mgr = new DbManager(Properties.Settings.Default.ConStr);
-            Image image = mgr.GetImage(id);
+            return View(new Image { Id = id, Password = "error" });
 
-            if(image.Password != password)
-            {
-                return View(new Image { Id = id, Password = "error" });
+          
 
-            }
-            mgr.UpdateImage(image.Id);
-            image.TimesViewed++;
-
-            List<int> correct = new List<int>();
-            correct.Add(id);
-            Session["CorrectPasswords"] = correct;
-            return View(image);
         }
     }
 }

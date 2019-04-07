@@ -12,7 +12,7 @@
         }
         <h5>Please enter password</h5>
         <form method="post" action="/images/viewimage?id=@Model.Id">
-            <input type="text" placeholder="password" name="password" />
+            <input type="password" placeholder="password" name="password" />
             <button class="btn btn-primary">Submit</button>
         </form>
     </div>
@@ -20,7 +20,7 @@
 }
 else
 {
-    <img style="width: 300px; height: 250px" src="@Model.FileName" />
+    <img style="width: 300px; height: 250px" src="~/UploadedImages/@Model.FileName" />
     <Label class="col-lg-4">Viewed @Model.TimesViewed times</Label>
 }
 

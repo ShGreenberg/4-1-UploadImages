@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace UploadImages.data
 {
-    public class Image
+    public class User
     {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
         public int Id { get; set; }
-        public string FileName { get; set; }
-        public string Password { get; set; }
-        public int TimesViewed { get; set; }
-        public int UserId { get; set; }
     }
 }
